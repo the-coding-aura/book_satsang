@@ -1,0 +1,88 @@
+# DEV flavor only — KrishnaDEV (com.example.krishnaApp.dev)
+# Copy to: .github/workflows/ios-ipa-build-dev.yml
+
+name: iOS-ipa-build-DEV
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'GitHub release tag (default: v<pubspec-version>)'
+        required: false
+        type: string
+
+jobs:
+  build-ios-dev:
+    name: iOS Build (DEV)
+    runs-on: macos-latest
+
+    env:
+      FLAVOR: DEV
+      APP_NAME: KrishnaDEV
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Read version from pubspec.yaml
+        id: app_version
+        run: |
+          VERSION_LINE=$(grep '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')
+          VERSION_NAME="${VERSION_LINE%%+*}"
+          BUILD_NUMBER="${VERSION_LINE#*+}"
+          if [ "$BUILD_NUMBER" = "$VERSION_LINE" ]; then
+            BUILD_NUMBER="1"
+          fi
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.release_tag }}" ]; then
+            echo "release_tag=${{ inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ipa_filename=${APP_NAME}-DEV-v${VERSION_NAME}+${BUILD_NUMBER}.ipa" >> "$GITHUB_OUTPUT"
+
+      - run: flutter pub get
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Build DEV release
+        run: |
+          flutter build ios \
+            --flavor DEV \
+            --release \
+            --no-codesign \
+            --build-name="${{ steps.app_version.outputs.version_name }}" \
+            --build-number="${{ steps.app_version.outputs.build_number }}"
+
+      - name: Create unsigned IPA
+        run: |
+          BUILD_DIR="build/ios/iphoneos"
+          IPA_NAME="${{ steps.app_version.outputs.ipa_filename }}"
+          rm -rf "${BUILD_DIR}/Payload" "${BUILD_DIR}/${IPA_NAME}"
+          mkdir -p "${BUILD_DIR}/Payload"
+          cp -R "${BUILD_DIR}/${APP_NAME}.app" "${BUILD_DIR}/Payload/"
+          cd "${BUILD_DIR}"
+          zip -qq -r -9 "${IPA_NAME}" Payload
+          rm -rf Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.app_version.outputs.ipa_filename }}
+          path: build/ios/iphoneos/${{ steps.app_version.outputs.ipa_filename }}
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.app_version.outputs.release_tag }}-DEV
+          name: KrishnaDEV DEV ${{ steps.app_version.outputs.version_name }}
+          files: build/ios/iphoneos/${{ steps.app_version.outputs.ipa_filename }}
+          generate_release_notes: true
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

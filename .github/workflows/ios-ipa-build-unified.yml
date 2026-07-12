@@ -1,0 +1,134 @@
+# Unified iOS IPA workflow for Krishna App (DEV / MOCK / PROD flavors)
+# Copy to: .github/workflows/ios-ipa-build.yml
+
+name: iOS-ipa-build
+
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Build flavor (must match Xcode scheme name)'
+        required: true
+        default: 'PROD'
+        type: choice
+        options:
+          - PROD
+          - DEV
+          - MOCK
+      release_tag:
+        description: 'GitHub release tag (leave empty to use pubspec version, e.g. v1.1.6)'
+        required: false
+        type: string
+      upload_to_release:
+        description: 'Upload IPA to GitHub Releases'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  FLAVOR_APP_NAMES: |
+    PROD=KrishnaCargo
+    DEV=KrishnaDEV
+    MOCK=KrishnaMOCK
+
+jobs:
+  build-ios:
+    name: iOS Build (${{ inputs.flavor }})
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Read version from pubspec.yaml
+        id: app_version
+        run: |
+          VERSION_LINE=$(grep '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')
+          VERSION_NAME="${VERSION_LINE%%+*}"
+          BUILD_NUMBER="${VERSION_LINE#*+}"
+          if [ "$BUILD_NUMBER" = "$VERSION_LINE" ]; then
+            BUILD_NUMBER="1"
+          fi
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.release_tag }}" ]; then
+            echo "release_tag=${{ inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve flavor app bundle name
+        id: flavor
+        run: |
+          FLAVOR="${{ inputs.flavor }}"
+          APP_NAME=$(echo "$FLAVOR_APP_NAMES" | grep "^${FLAVOR}=" | cut -d= -f2)
+          if [ -z "$APP_NAME" ]; then
+            echo "Unknown flavor: $FLAVOR"
+            exit 1
+          fi
+          echo "app_name=$APP_NAME" >> "$GITHUB_OUTPUT"
+          echo "ipa_filename=${APP_NAME}-${FLAVOR}-v${{ steps.app_version.outputs.version_name }}+${{ steps.app_version.outputs.build_number }}.ipa" >> "$GITHUB_OUTPUT"
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install --repo-update
+
+      - name: Build iOS release (no codesign)
+        run: |
+          flutter build ios \
+            --flavor "${{ inputs.flavor }}" \
+            --release \
+            --no-codesign \
+            --build-name="${{ steps.app_version.outputs.version_name }}" \
+            --build-number="${{ steps.app_version.outputs.build_number }}"
+
+      - name: Package unsigned IPA
+        run: |
+          FLAVOR="${{ inputs.flavor }}"
+          APP_NAME="${{ steps.flavor.outputs.app_name }}"
+          IPA_NAME="${{ steps.flavor.outputs.ipa_filename }}"
+          BUILD_DIR="build/ios/iphoneos"
+
+          if [ ! -d "${BUILD_DIR}/${APP_NAME}.app" ]; then
+            echo "Expected app bundle not found: ${BUILD_DIR}/${APP_NAME}.app"
+            echo "Contents of ${BUILD_DIR}:"
+            ls -la "${BUILD_DIR}"
+            exit 1
+          fi
+
+          rm -rf "${BUILD_DIR}/Payload" "${BUILD_DIR}/${IPA_NAME}"
+          mkdir -p "${BUILD_DIR}/Payload"
+          cp -R "${BUILD_DIR}/${APP_NAME}.app" "${BUILD_DIR}/Payload/"
+          cd "${BUILD_DIR}"
+          zip -qq -r -9 "${IPA_NAME}" Payload
+          rm -rf Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.flavor.outputs.ipa_filename }}
+          path: build/ios/iphoneos/${{ steps.flavor.outputs.ipa_filename }}
+          retention-days: 30
+
+      - name: Upload IPA to GitHub Release
+        if: inputs.upload_to_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.app_version.outputs.release_tag }}-${{ inputs.flavor }}
+          name: Krishna App ${{ inputs.flavor }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
+          files: build/ios/iphoneos/${{ steps.flavor.outputs.ipa_filename }}
+          generate_release_notes: true
+          make_latest: false
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
