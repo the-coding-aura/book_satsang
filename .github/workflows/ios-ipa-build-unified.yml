@@ -1,4 +1,4 @@
-# Unified iOS IPA workflow for Krishna App (DEV / MOCK / PROD flavors)
+# Unified iOS IPA workflow for BookSatsang (DEV / MOCK / PROD flavors)
 # Copy to: .github/workflows/ios-ipa-build.yml
 
 name: iOS-ipa-build
@@ -27,6 +27,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  APP_BASE_NAME: BookSatsang
 
 jobs:
   build-ios:
@@ -86,6 +87,7 @@ jobs:
         id: app_bundle
         run: |
           BUILD_DIR="build/ios/iphoneos"
+          FLAVOR="${{ inputs.flavor }}"
           VERSION_NAME="${{ steps.app_version.outputs.version_name }}"
           BUILD_NUMBER="${{ steps.app_version.outputs.build_number }}"
 
@@ -97,7 +99,7 @@ jobs:
           fi
 
           APP_NAME=$(basename "$APP_PATH" .app)
-          IPA_NAME="${APP_NAME}-v${VERSION_NAME}+${BUILD_NUMBER}.ipa"
+          IPA_NAME="${APP_BASE_NAME}-${FLAVOR}-v${VERSION_NAME}+${BUILD_NUMBER}.ipa"
           echo "app_name=${APP_NAME}" >> "$GITHUB_OUTPUT"
           echo "ipa_filename=${IPA_NAME}" >> "$GITHUB_OUTPUT"
           echo "Resolved app bundle: ${APP_NAME}.app"
@@ -122,7 +124,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.app_version.outputs.release_tag }}-${{ inputs.flavor }}
-          name: ${{ steps.app_bundle.outputs.app_name }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
+          name: BookSatsang ${{ inputs.flavor }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
           files: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           generate_release_notes: true
           make_latest: false

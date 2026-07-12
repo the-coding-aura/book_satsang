@@ -1084,7 +1084,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.dev;
-				PRODUCT_NAME = KrishnaDEV;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1106,7 +1106,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.mock;
-				PRODUCT_NAME = KrishnaMOCK;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1150,7 +1150,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.dev;
-				PRODUCT_NAME = KrishnaDEV;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1171,7 +1171,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.mock;
-				PRODUCT_NAME = KrishnaMOCK;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1213,7 +1213,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.dev;
-				PRODUCT_NAME = KrishnaDEV;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1234,7 +1234,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.mock;
-				PRODUCT_NAME = KrishnaMOCK;
+				PRODUCT_NAME = BookSatsang;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1278,7 +1278,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaDEV.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaDEV";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Debug-DEV";
 		};
@@ -1295,7 +1295,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaMOCK.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaMOCK";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Debug-MOCK";
 		};
@@ -1312,7 +1312,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaCargo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaCargo";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Debug-PROD";
 		};
@@ -1327,7 +1327,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaDEV.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaDEV";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Release-DEV";
 		};
@@ -1342,7 +1342,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaMOCK.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaMOCK";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Release-MOCK";
 		};
@@ -1357,7 +1357,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaCargo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaCargo";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Release-PROD";
 		};
@@ -1372,7 +1372,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaDEV.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaDEV";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Profile-DEV";
 		};
@@ -1387,7 +1387,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaMOCK.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaMOCK";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Profile-MOCK";
 		};
@@ -1402,7 +1402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.bookSatsangApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KrishnaCargo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KrishnaCargo";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookSatsang.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookSatsang";
 			};
 			name = "Profile-PROD";
 		};
