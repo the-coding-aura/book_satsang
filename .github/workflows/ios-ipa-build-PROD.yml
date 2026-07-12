@@ -11,6 +11,9 @@ on:
         required: false
         type: string
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-ios-prod:
     name: iOS Build (PROD)
@@ -18,10 +21,14 @@ jobs:
 
     env:
       FLAVOR: PROD
-      APP_NAME: KrishnaCargo
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - uses: subosito/flutter-action@v2
         with:
@@ -44,7 +51,6 @@ jobs:
           else
             echo "release_tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
           fi
-          echo "ipa_filename=${APP_NAME}-PROD-v${VERSION_NAME}+${BUILD_NUMBER}.ipa" >> "$GITHUB_OUTPUT"
 
       - run: flutter pub get
 
@@ -61,27 +67,44 @@ jobs:
             --build-name="${{ steps.app_version.outputs.version_name }}" \
             --build-number="${{ steps.app_version.outputs.build_number }}"
 
-      - name: Create unsigned IPA
+      - name: Resolve built app bundle and package IPA
+        id: app_bundle
         run: |
           BUILD_DIR="build/ios/iphoneos"
-          IPA_NAME="${{ steps.app_version.outputs.ipa_filename }}"
+          VERSION_NAME="${{ steps.app_version.outputs.version_name }}"
+          BUILD_NUMBER="${{ steps.app_version.outputs.build_number }}"
+
+          APP_PATH=$(find "$BUILD_DIR" -maxdepth 1 -name '*.app' -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found in ${BUILD_DIR}"
+            ls -la "$BUILD_DIR" || true
+            exit 1
+          fi
+
+          APP_NAME=$(basename "$APP_PATH" .app)
+          IPA_NAME="${APP_NAME}-v${VERSION_NAME}+${BUILD_NUMBER}.ipa"
+          echo "app_name=${APP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "ipa_filename=${IPA_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Resolved app bundle: ${APP_NAME}.app"
+          echo "IPA filename: ${IPA_NAME}"
+
           rm -rf "${BUILD_DIR}/Payload" "${BUILD_DIR}/${IPA_NAME}"
           mkdir -p "${BUILD_DIR}/Payload"
-          cp -R "${BUILD_DIR}/${APP_NAME}.app" "${BUILD_DIR}/Payload/"
+          cp -R "${APP_PATH}" "${BUILD_DIR}/Payload/"
           cd "${BUILD_DIR}"
           zip -qq -r -9 "${IPA_NAME}" Payload
           rm -rf Payload
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.app_version.outputs.ipa_filename }}
-          path: build/ios/iphoneos/${{ steps.app_version.outputs.ipa_filename }}
+          name: ${{ steps.app_bundle.outputs.ipa_filename }}
+          path: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
 
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.app_version.outputs.release_tag }}-PROD
-          name: KrishnaCargo PROD ${{ steps.app_version.outputs.version_name }}
-          files: build/ios/iphoneos/${{ steps.app_version.outputs.ipa_filename }}
+          name: ${{ steps.app_bundle.outputs.app_name }} ${{ steps.app_version.outputs.version_name }}
+          files: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           generate_release_notes: true
           overwrite_files: true
         env:
