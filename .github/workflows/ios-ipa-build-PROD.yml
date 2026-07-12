@@ -18,6 +18,8 @@ jobs:
   build-ios-prod:
     name: iOS Build (PROD)
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     env:
       FLAVOR: PROD
@@ -101,12 +103,11 @@ jobs:
           name: ${{ steps.app_bundle.outputs.ipa_filename }}
           path: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.app_version.outputs.release_tag }}-PROD
+          target_commitish: ${{ github.sha }}
           name: BookSatsang PROD ${{ steps.app_version.outputs.version_name }}
           files: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           generate_release_notes: true
           overwrite_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -33,6 +33,8 @@ jobs:
   build-ios:
     name: iOS Build (${{ inputs.flavor }})
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -121,13 +123,12 @@ jobs:
 
       - name: Upload IPA to GitHub Release
         if: inputs.upload_to_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.app_version.outputs.release_tag }}-${{ inputs.flavor }}
+          target_commitish: ${{ github.sha }}
           name: BookSatsang ${{ inputs.flavor }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
           files: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           generate_release_notes: true
           make_latest: false
           overwrite_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
