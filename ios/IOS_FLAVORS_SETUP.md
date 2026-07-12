@@ -12,9 +12,9 @@ It is written so another developer can reproduce the entire setup from scratch.
 
 | Flavor | Xcode Scheme | Bundle Identifier | Product / Display Name | App Icon Set | Dart Environment |
 |--------|--------------|-------------------|------------------------|--------------|------------------|
-| **PROD** | `PROD` | `com.example.krishnaApp` | `KrishnaCargo` | `AppIcon-PROD` (original) | `startProduction()` → `https://api.kaclpl.com` |
-| **DEV**  | `DEV`  | `com.example.krishnaApp.dev` | `KrishnaDEV` | `AppIcon-DEV` (blue tint) | `startDev()` → `https://krishnacargoapi.ifelsesolutions.in` |
-| **MOCK** | `MOCK` | `com.example.krishnaApp.mock` | `KrishnaMOCK` | `AppIcon-MOCK` (purple tint) | `startMock()` → `http://localhost:3000` |
+| **PROD** | `PROD` | `com.example.bookSatsangApp` | `KrishnaCargo` | `AppIcon-PROD` (original) | `startProduction()` → `https://api.kaclpl.com` |
+| **DEV**  | `DEV`  | `com.example.bookSatsangApp.dev` | `KrishnaDEV` | `AppIcon-DEV` (blue tint) | `startDev()` → `https://krishnacargoapi.ifelsesolutions.in` |
+| **MOCK** | `MOCK` | `com.example.bookSatsangApp.mock` | `KrishnaMOCK` | `AppIcon-MOCK` (purple tint) | `startMock()` → `http://localhost:3000` |
 
 Because the three flavors use **different bundle identifiers**, all three apps can be
 installed on the **same device simultaneously**.
@@ -129,9 +129,9 @@ On the **Runner target** configurations only:
 
 | Configuration | `PRODUCT_BUNDLE_IDENTIFIER` |
 |---------------|-----------------------------|
-| `*-DEV`  | `com.example.krishnaApp.dev` |
-| `*-MOCK` | `com.example.krishnaApp.mock` |
-| `*-PROD` | `com.example.krishnaApp` |
+| `*-DEV`  | `com.example.bookSatsangApp.dev` |
+| `*-MOCK` | `com.example.bookSatsangApp.mock` |
+| `*-PROD` | `com.example.bookSatsangApp` |
 
 > **Reproduce in Xcode:** Runner target → **Build Settings** → *Packaging* →
 > **Product Bundle Identifier** → set a per-configuration value.
@@ -390,9 +390,9 @@ See also `.github/workflows/README.txt` for a short operator reference.
 * Signing style is left as configured on the Runner target (`CODE_SIGN_STYLE` / your team).
 * Because each flavor has a **unique bundle identifier**, you will need (for device builds /
   distribution) a provisioning profile for **each** of:
-  * `com.example.krishnaApp`
-  * `com.example.krishnaApp.dev`
-  * `com.example.krishnaApp.mock`
+  * `com.example.bookSatsangApp`
+  * `com.example.bookSatsangApp.dev`
+  * `com.example.bookSatsangApp.mock`
 * With **Automatic signing** and a valid Team, Xcode creates the needed profiles on demand.
   Set the Team once on the Runner target; it applies to all configurations.
 
@@ -483,7 +483,7 @@ and Podfile platform line uncommented (see Steps 8–9).
    Do not set `12.0` or `13.0`; `pod install` and CI builds will fail.
 3. **CocoaPods** installed; run `flutter pub get` then `pod install --repo-update` (in `ios/`)
    after pulling these changes so the flavored pod xcconfigs are generated.
-4. The base bundle identifier is `com.example.krishnaApp`. If you change it, update the three
+4. The base bundle identifier is `com.example.bookSatsangApp`. If you change it, update the three
    Runner-target `PRODUCT_BUNDLE_IDENTIFIER` values (and the suffix logic is unaffected).
 5. Product names are intentionally space-free (`KrishnaDEV`, `KrishnaMOCK`, `KrishnaCargo`)
    to keep the `.app` bundle name and `TEST_HOST` paths clean; adjust to taste.

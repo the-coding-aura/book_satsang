@@ -1,4 +1,4 @@
-# PROD flavor only — KrishnaCargo (com.example.krishnaApp)
+# PROD flavor only — KrishnaCargo (com.example.bookSatsangApp)
 # Copy to: .github/workflows/ios-ipa-build-prod.yml
 
 name: iOS-ipa-build-PROD

@@ -1,4 +1,4 @@
-# MOCK flavor only — KrishnaMOCK (com.example.krishnaApp.mock)
+# MOCK flavor only — KrishnaMOCK (com.example.bookSatsangApp.mock)
 # Copy to: .github/workflows/ios-ipa-build-mock.yml
 
 name: iOS-ipa-build-MOCK

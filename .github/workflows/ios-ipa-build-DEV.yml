@@ -1,4 +1,4 @@
-# DEV flavor only — KrishnaDEV (com.example.krishnaApp.dev)
+# DEV flavor only — KrishnaDEV (com.example.bookSatsangApp.dev)
 # Copy to: .github/workflows/ios-ipa-build-dev.yml
 
 name: iOS-ipa-build-DEV
