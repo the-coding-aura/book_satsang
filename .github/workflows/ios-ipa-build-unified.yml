@@ -26,10 +26,7 @@ on:
         type: boolean
 
 env:
-  FLAVOR_APP_NAMES: |
-    PROD=KrishnaCargo
-    DEV=KrishnaDEV
-    MOCK=KrishnaMOCK
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-ios:
@@ -39,6 +36,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -63,18 +65,6 @@ jobs:
             echo "release_tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Resolve flavor app bundle name
-        id: flavor
-        run: |
-          FLAVOR="${{ inputs.flavor }}"
-          APP_NAME=$(echo "$FLAVOR_APP_NAMES" | grep "^${FLAVOR}=" | cut -d= -f2)
-          if [ -z "$APP_NAME" ]; then
-            echo "Unknown flavor: $FLAVOR"
-            exit 1
-          fi
-          echo "app_name=$APP_NAME" >> "$GITHUB_OUTPUT"
-          echo "ipa_filename=${APP_NAME}-${FLAVOR}-v${{ steps.app_version.outputs.version_name }}+${{ steps.app_version.outputs.build_number }}.ipa" >> "$GITHUB_OUTPUT"
-
       - name: Install Flutter dependencies
         run: flutter pub get
 
@@ -92,23 +82,30 @@ jobs:
             --build-name="${{ steps.app_version.outputs.version_name }}" \
             --build-number="${{ steps.app_version.outputs.build_number }}"
 
-      - name: Package unsigned IPA
+      - name: Resolve built app bundle and package IPA
+        id: app_bundle
         run: |
-          FLAVOR="${{ inputs.flavor }}"
-          APP_NAME="${{ steps.flavor.outputs.app_name }}"
-          IPA_NAME="${{ steps.flavor.outputs.ipa_filename }}"
           BUILD_DIR="build/ios/iphoneos"
+          VERSION_NAME="${{ steps.app_version.outputs.version_name }}"
+          BUILD_NUMBER="${{ steps.app_version.outputs.build_number }}"
 
-          if [ ! -d "${BUILD_DIR}/${APP_NAME}.app" ]; then
-            echo "Expected app bundle not found: ${BUILD_DIR}/${APP_NAME}.app"
-            echo "Contents of ${BUILD_DIR}:"
-            ls -la "${BUILD_DIR}"
+          APP_PATH=$(find "$BUILD_DIR" -maxdepth 1 -name '*.app' -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found in ${BUILD_DIR}"
+            ls -la "$BUILD_DIR" || true
             exit 1
           fi
 
+          APP_NAME=$(basename "$APP_PATH" .app)
+          IPA_NAME="${APP_NAME}-v${VERSION_NAME}+${BUILD_NUMBER}.ipa"
+          echo "app_name=${APP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "ipa_filename=${IPA_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Resolved app bundle: ${APP_NAME}.app"
+          echo "IPA filename: ${IPA_NAME}"
+
           rm -rf "${BUILD_DIR}/Payload" "${BUILD_DIR}/${IPA_NAME}"
           mkdir -p "${BUILD_DIR}/Payload"
-          cp -R "${BUILD_DIR}/${APP_NAME}.app" "${BUILD_DIR}/Payload/"
+          cp -R "${APP_PATH}" "${BUILD_DIR}/Payload/"
           cd "${BUILD_DIR}"
           zip -qq -r -9 "${IPA_NAME}" Payload
           rm -rf Payload
@@ -116,8 +113,8 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.flavor.outputs.ipa_filename }}
-          path: build/ios/iphoneos/${{ steps.flavor.outputs.ipa_filename }}
+          name: ${{ steps.app_bundle.outputs.ipa_filename }}
+          path: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           retention-days: 30
 
       - name: Upload IPA to GitHub Release
@@ -125,8 +122,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.app_version.outputs.release_tag }}-${{ inputs.flavor }}
-          name: Krishna App ${{ inputs.flavor }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
-          files: build/ios/iphoneos/${{ steps.flavor.outputs.ipa_filename }}
+          name: ${{ steps.app_bundle.outputs.app_name }} ${{ steps.app_version.outputs.version_name }} (${{ steps.app_version.outputs.build_number }})
+          files: build/ios/iphoneos/${{ steps.app_bundle.outputs.ipa_filename }}
           generate_release_notes: true
           make_latest: false
           overwrite_files: true
