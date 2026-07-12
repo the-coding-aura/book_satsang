@@ -1,4 +1,6 @@
 import 'package:book_satsang/dependency_injection/locator.dart';
+import 'package:book_satsang/modules/home/models/response_models/add_satsang_response_model.dart';
+import 'package:book_satsang/modules/home/models/response_models/member_list_response_model.dart';
 import 'package:book_satsang/modules/home/models/response_models/profile_get_response_model.dart';
 import 'package:book_satsang/modules/home/models/response_models/satsang_list_response_model.dart';
 import 'package:book_satsang/modules/home/repository/home_api_repository.dart';
@@ -26,6 +28,16 @@ class HomeHttpApiRepository implements HomeApiRepository {
     return fetchSatsangListResponse(json);
   }
 
+  /// Creates a new satsang event.
+  @override
+  Future<AddSatsangResponseModel?> addSatsang(Map<String, dynamic> body) async {
+    final json = await _apiService.post(
+      ApiPathHelper.getValue(ApiPath.addSatsang),
+      body: body,
+    );
+    return addSatsangResponseFromJson(json as Map<String, dynamic>);
+  }
+
   /// Fetches the authenticated member's profile details.
   @override
   Future<ProfileGetResponseModel?> fetchProfileDetails() async {
@@ -33,5 +45,14 @@ class HomeHttpApiRepository implements HomeApiRepository {
       ApiPathHelper.getValue(ApiPath.fetchMemberProfile),
     );
     return profileGetResfromJson(json);
+  }
+
+  /// Fetches all members for the members directory.
+  @override
+  Future<MemberListResponseModel?> fetchAllMembers() async {
+    final json = await _apiService.get(
+      ApiPathHelper.getValue(ApiPath.fetchAllMembers),
+    );
+    return memberListResponseFromJson(json);
   }
 }

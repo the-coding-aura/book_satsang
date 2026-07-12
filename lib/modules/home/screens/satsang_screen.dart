@@ -2,6 +2,7 @@ import 'package:book_satsang/modules/home/extensions/satsang_provider_extension.
 import 'package:book_satsang/modules/home/extensions/string_extensions.dart';
 import 'package:book_satsang/modules/home/providers/satsang_screen_provider.dart';
 import 'package:book_satsang/modules/home/widgets/label_info.dart';
+import 'package:book_satsang/modules/home/widgets/shimmers/satsang_list_shimmer_widget.dart';
 import 'package:book_satsang/utils/extensions/responsive_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,8 @@ class _SatsangScreenState extends State<SatsangScreen> {
       builder: (context, value, child) {
         switch (value.status) {
           case Status.loading:
-            return child!;
+          case Status.idle:
+            return const SatsangListShimmerWidget();
 
           case Status.error:
             return Text(value.message ?? '');
@@ -113,11 +115,8 @@ class _SatsangScreenState extends State<SatsangScreen> {
               ),
             );
 
-          default:
-            return child!;
         }
       },
-      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

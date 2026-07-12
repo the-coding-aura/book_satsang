@@ -1,6 +1,7 @@
 import 'package:book_satsang/configs/theme/app_colors.dart';
 import 'package:book_satsang/modules/home/extensions/home_provider_extension.dart';
 import 'package:book_satsang/modules/home/providers/home_page_provider.dart';
+import 'package:book_satsang/modules/home/providers/member_screen_provider.dart';
 import 'package:book_satsang/modules/home/providers/profile_screen_provider.dart';
 import 'package:book_satsang/modules/home/providers/satsang_screen_provider.dart';
 import 'package:book_satsang/modules/home/screens/member_screen.dart';
@@ -8,6 +9,7 @@ import 'package:book_satsang/modules/home/screens/profile_screen.dart';
 import 'package:book_satsang/modules/home/screens/satsang_screen.dart';
 import 'package:book_satsang/modules/home/screens/wall_screen.dart';
 import 'package:book_satsang/utils/extensions/responsive_extension.dart';
+import 'package:book_satsang/utils/widgets/exit_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,57 +31,65 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: ChangeNotifierProvider(
-        create: (BuildContext context) => HomeDrawerProvider(),
-        child: HomeDrawer(),
-      ),
-      appBar: AppBar(title: Text("Home Page"), centerTitle: true),
-      body: Selector<HomePageProvider, PageController>(
-        selector: (context, p) => p.homePageCon,
-        builder: (context, value, child) => PageView(
-          onPageChanged: context.homePageProvider.onPageChanged,
-          controller: value,
-          children: [
-            WallScreen(),
-            ChangeNotifierProvider<SatsangScreenProvider>(
-              create: (context) => SatsangScreenProvider(),
-              child: SatsangScreen(),
-            ),
-            MemberScreen(),
-            ChangeNotifierProvider<ProfileScreenProvider>(
-              create: (context) => ProfileScreenProvider(),
-              child: ProfileScreen(),
-            ),
-          ],
+    return ExitHandler(
+      child: ChangeNotifierProvider<SatsangScreenProvider>(
+          create: (_) => SatsangScreenProvider(),
+          child: Scaffold(
+        drawer: ChangeNotifierProvider(
+          create: (BuildContext context) => HomeDrawerProvider(),
+          child: HomeDrawer(),
         ),
-      ),
-      bottomNavigationBar:
-          Selector<HomePageProvider, (List<BottomNavigationBarItem>, int)>(
-            selector: (context, p) => (p.options, p.currentIndex),
-            builder: (context, value, child) => BottomNavigationBar(
-              backgroundColor: AppColors.primary,
-              landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
-              items: value.$1,
-              currentIndex: value.$2,
-              onTap: context.homePageProvider.onChangeMenu,
-            ),
+        appBar: AppBar(title: Text("Home Page"), centerTitle: true),
+        body: Selector<HomePageProvider, PageController>(
+          selector: (context, p) => p.homePageCon,
+          builder: (context, value, child) => PageView(
+            onPageChanged: context.homePageProvider.onPageChanged,
+            controller: value,
+            children: [
+              WallScreen(),
+              SatsangScreen(),
+              ChangeNotifierProvider<MemberScreenProvider>(
+                create: (_) => MemberScreenProvider(),
+                child: MemberScreen(),
+              ),
+              ChangeNotifierProvider<ProfileScreenProvider>(
+                create: (context) => ProfileScreenProvider(),
+                child: ProfileScreen(),
+              ),
+            ],
           ),
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 10,
-        label: Row(
-          children: [
-            Text(
-              "Add Satsang",
-              style: TextStyle(color: Colors.white, fontSize: context.wp(4)),
-            ),
-            Icon(Icons.add, color: Colors.white, size: context.wp(8)),
-          ],
         ),
-        onPressed: () {},
-        backgroundColor: AppColors.primary,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar:
+            Selector<HomePageProvider, (List<BottomNavigationBarItem>, int)>(
+              selector: (context, p) => (p.options, p.currentIndex),
+              builder: (context, value, child) => BottomNavigationBar(
+                backgroundColor: AppColors.primary,
+                landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
+                items: value.$1,
+                currentIndex: value.$2,
+                onTap: context.homePageProvider.onChangeMenu,
+              ),
+            ),
+        floatingActionButton: FloatingActionButton.extended(
+          elevation: 10,
+          label: Row(
+            children: [
+              Text(
+                "Add Satsang",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: context.wp(4),
+                ),
+              ),
+              Icon(Icons.add, color: Colors.white, size: context.wp(8)),
+            ],
+          ),
+          onPressed: () => context.homePageProvider.navigateToAddSatsang(context),
+          backgroundColor: AppColors.primary,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          ),
+        ),
     );
   }
 }

@@ -15,7 +15,9 @@ enum ApiPath {
   registerMember,
   memberLogin,
   fetchSatsang,
+  addSatsang,
   fetchMemberProfile,
+  fetchAllMembers,
   refreshToken,
   uploadFile,
   logout,
@@ -42,6 +44,8 @@ class ApiPathHelper {
         return '${AppConfig.apiBaseUrl}/Member/VerifyLogin';
       case ApiPath.fetchSatsang:
         return '${AppConfig.apiBaseUrl}/Satsang/GetSatsang';
+      case ApiPath.addSatsang:
+        return '${AppConfig.apiBaseUrl.replaceAll(RegExp(r'/api$'), '')}/api/Satsang/AddSatsang';
       case ApiPath.verifyOtp:
         return '${AppConfig.apiBaseUrl}/OTP/VerifyOTP';
       case ApiPath.fetchTaluka:
@@ -56,6 +60,8 @@ class ApiPathHelper {
         return '${AppConfig.apiBaseUrl}/Member/AddMember';
       case ApiPath.fetchMemberProfile:
         return '${AppConfig.apiBaseUrl}/Member/GetMemberByToken';
+      case ApiPath.fetchAllMembers:
+        return '${AppConfig.apiBaseUrl.replaceAll(RegExp(r'/api$'), '')}/api/Member/GetAllMembers';
       case ApiPath.refreshToken:
         return '${AppConfig.apiBaseUrl}/Member/GetRefreshToken';
       case ApiPath.logout:

@@ -1,7 +1,9 @@
 import 'package:book_satsang/configs/routes/routes_name.dart';
 import 'package:book_satsang/modules/drawer/pages/core_team_page.dart';
 import 'package:book_satsang/modules/drawer/pages/special_thanks_page.dart';
+import 'package:book_satsang/modules/home/pages/add_satsang_page.dart';
 import 'package:book_satsang/modules/home/pages/home_page.dart';
+import 'package:book_satsang/modules/home/providers/add_satsang_provider.dart';
 import 'package:book_satsang/modules/home/providers/home_page_provider.dart';
 import 'package:book_satsang/modules/login/pages/login_page.dart';
 import 'package:book_satsang/modules/login/providers/login_provider.dart';
@@ -74,6 +76,15 @@ class Routes {
       case RoutesName.coreTeam:
         return MaterialPageRoute(
           builder: (_) => const CoreTeamPage(),
+        );
+
+      case RoutesName.addSatsang:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => ChangeNotifierProvider<AddSatsangProvider>(
+            create: (_) => AddSatsangProvider(),
+            child: const AddSatsangPage(),
+          ),
         );
 
       default:

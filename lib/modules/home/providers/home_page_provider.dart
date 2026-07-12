@@ -1,3 +1,4 @@
+import 'package:book_satsang/configs/routes/routes_name.dart';
 import 'package:flutter/material.dart';
 
 /// Manages bottom navigation and page switching for [HomePage].
@@ -33,5 +34,13 @@ class HomePageProvider extends ChangeNotifier {
   onPageChanged(int value) {
     currentIndex = value;
     notifyListeners();
+  }
+
+  /// Opens the add satsang screen, then switches to the satsang tab and refreshes the list.
+  Future<void> navigateToAddSatsang(BuildContext context) async {
+    await Navigator.pushNamed(context, RoutesName.addSatsang);
+    if (!context.mounted) return;
+
+    onChangeMenu(1);
   }
 }

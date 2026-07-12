@@ -4,6 +4,7 @@ import 'package:book_satsang/modules/login/widgets/login_mobile_field.dart';
 import 'package:book_satsang/modules/login/widgets/send_otp_button.dart';
 import 'package:book_satsang/modules/login/widgets/term_label_button.dart';
 import 'package:book_satsang/utils/extensions/responsive_extension.dart';
+import 'package:book_satsang/utils/widgets/exit_handler.dart';
 import 'package:flutter/material.dart';
 
 /// Screen where users enter a mobile number and request an OTP.
@@ -18,36 +19,38 @@ class LoginPage extends StatelessWidget {
   /// Composes header, inputs, terms, submit button, and privacy link.
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/login_background.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.wp(10),
-            vertical: context.hp(5),
-          ),
-          child: Column(
-            children: [
-              const LoginHeader(),
-              const LoginMobileField(),
-              const TermLabelButton(),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: context.hp(3)),
-                child: const SendOtpButton(),
+    return ExitHandler(
+      child: Scaffold(
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/login_background.png'),
+                fit: BoxFit.cover,
               ),
-              SizedBox(height: context.hp(4)),
-              _PrivacyPolicyLink(),
-            ],
+            ),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.wp(10),
+                vertical: context.hp(5),
+              ),
+              child: Column(
+                children: [
+                  const LoginHeader(),
+                  const LoginMobileField(),
+                  const TermLabelButton(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: context.hp(3)),
+                    child: const SendOtpButton(),
+                  ),
+                  SizedBox(height: context.hp(4)),
+                  _PrivacyPolicyLink(),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:book_satsang/modules/home/models/response_models/add_satsang_response_model.dart';
+import 'package:book_satsang/modules/home/models/response_models/member_list_response_model.dart';
 import 'package:book_satsang/modules/home/models/response_models/profile_get_response_model.dart';
 import 'package:book_satsang/modules/home/models/response_models/satsang_list_response_model.dart';
 import 'package:book_satsang/modules/home/repository/home_api_repository.dart';
@@ -20,6 +22,16 @@ class HomeMockApiRepository implements HomeApiRepository {
     );
   }
 
+  /// Creates a new satsang event.
+  @override
+  Future<AddSatsangResponseModel?> addSatsang(Map<String, dynamic> body) async {
+    await Future.delayed(_delay);
+    return AddSatsangResponseModel.success(
+      data: 1,
+      message: 'Satsang added successfully.',
+    );
+  }
+
   /// Fetches the authenticated member's profile details.
   @override
   Future<ProfileGetResponseModel?> fetchProfileDetails() async {
@@ -31,6 +43,35 @@ class HomeMockApiRepository implements HomeApiRepository {
         dateOfBirth: '01/01/1990',
       ),
       message: 'Profile details retrieved successfully.',
+    );
+  }
+
+  /// Fetches all members for the members directory.
+  @override
+  Future<MemberListResponseModel?> fetchAllMembers() async {
+    await Future.delayed(_delay);
+    return MemberListResponseModel.success(
+      data: const [
+        MemberData(
+          firstName: 'Vijay',
+          lastName: 'Deshmukh',
+          mobileNumber: '9846028033',
+          dateOfBirth: '1993-02-12T07:34:00',
+          villageName: 'Kannamangala',
+          talukaName: 'Mokhada',
+          designationName: 'Help Desk',
+        ),
+        MemberData(
+          firstName: 'Naresh',
+          lastName: 'Shinde',
+          mobileNumber: '9541074272',
+          dateOfBirth: '1992-12-06T04:55:00',
+          villageName: 'Hosanagalapura',
+          talukaName: 'Derapur',
+          designationName: 'Help Desk',
+        ),
+      ],
+      message: 'Members fetched successfully.',
     );
   }
 

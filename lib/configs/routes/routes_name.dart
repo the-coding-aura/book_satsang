@@ -23,4 +23,7 @@ class RoutesName {
 
   /// Route path for the core team static page.
   static const String coreTeam = '/core-team';
+
+  /// Route path for the add satsang screen.
+  static const String addSatsang = '/add-satsang';
 }

@@ -6,6 +6,7 @@ import 'package:book_satsang/modules/registeration/widgets/submit_reg_button.dar
 import 'package:book_satsang/modules/registeration/widgets/taluka_drop_widget.dart';
 import 'package:book_satsang/modules/registeration/widgets/village_drop_widget.dart';
 import 'package:book_satsang/utils/extensions/responsive_extension.dart';
+import 'package:book_satsang/utils/widgets/exit_handler.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/desigation_drop_widget.dart';
@@ -34,8 +35,9 @@ class _RegisterationPageState extends State<RegisterationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
+    return ExitHandler(
+      child: SafeArea(
+          child: Scaffold(
         appBar: AppBar(centerTitle: true, title: Text("Member Registeration")),
         body: SizedBox(
           height: double.infinity,
@@ -104,7 +106,8 @@ class _RegisterationPageState extends State<RegisterationPage> {
           ),
         ),
         bottomNavigationBar: SubmitRegButton(),
-      ),
+          ),
+        ),
     );
   }
 }
