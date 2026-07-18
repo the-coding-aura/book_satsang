@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This document covers the main shell after login: bottom navigation tabs, PageView switching, and the navigation drawer.
+This document covers the main shell after login: custom notched bottom navigation, PageView switching, the centered Add Satsang action, and the navigation drawer.
 
-Training deliverable: Home and navigation ready, drawer items open correctly.
+Training deliverable: Home and navigation ready, drawer items open correctly, Add Satsang FAB sits in the bottom-bar notch.
 
 ## Entry Point
 
@@ -12,27 +12,55 @@ File: lib/modules/home/pages/home_page.dart
 
 Structure:
 
-- Scaffold with drawer, app bar, body, bottom navigation bar
+- Scaffold with `extendBody: true`, drawer, app bar, body, notched bottom bar, and center-docked FAB
 - Drawer: HomeDrawer wrapped in HomeDrawerProvider
 - Body: PageView driven by HomePageProvider.homePageCon
-- BottomNavigationBar synced with currentIndex
+- Bottom bar: HomeBottomNavBar synced with currentIndex
+- FAB: AddSatsangFab aligned in the inward circular notch
 
-## Bottom Tabs
+## Custom Bottom Navigation
+
+Files:
+
+| File | Role |
+|------|------|
+| lib/modules/home/widgets/bottom_nav/home_bottom_nav_bar.dart | Notched BottomAppBar with four tab slots |
+| lib/modules/home/widgets/bottom_nav/add_satsang_fab.dart | Circular Add Satsang button and HomeNavItem |
+| lib/modules/home/widgets/bottom_nav/bottom_nav_notch_clipper.dart | Optional CustomClipper matching the notch geometry |
+
+Behavior:
+
+- BottomAppBar uses CircularNotchedRectangle for a smooth inward center curve
+- FloatingActionButtonLocation.centerDocked places AddSatsangFab in the notch
+- Two destinations sit left of the notch, two on the right
+- Selected tab uses brighter white + slight scale; unselected uses softer white
+- FAB size is responsive via context.wp and context.adaptiveSize, clamped for phones and tablets
+- Safe area / home-indicator padding is handled by BottomAppBar
+- AddSatsangFab uses a short press scale animation before navigation
 
 Managed by HomePageProvider in lib/modules/home/providers/home_page_provider.dart.
+
+## Bottom Tabs
 
 | Index | Label | Screen | Status |
 |-------|-------|--------|--------|
 | 0 | Posts | WallScreen | Placeholder |
 | 1 | Satsang | SatsangScreen | Implemented |
-| 2 | Members | MemberScreen | Placeholder |
+| 2 | Members | MemberScreen | Implemented (see member-search.md) |
 | 3 | Profile | ProfileScreen | Partial (see profile-module.md) |
 
 Tab change calls homePageCon.jumpToPage(index). Swiping the PageView calls onPageChanged to update the bottom bar index.
 
-SatsangScreen has its own ChangeNotifierProvider created inline in HomePage.
+SatsangScreenProvider is created above the home Scaffold. Member and Profile providers wrap their screens inline.
 
-ProfileScreen has ProfileScreenProvider scoped the same way.
+## Add Satsang FAB
+
+AddSatsangFab calls HomePageProvider.navigateToAddSatsang:
+
+1. pushNamed to RoutesName.addSatsang
+2. After return, onChangeMenu(1) selects the Satsang tab
+
+Route wiring lives in routes_name.dart and routes.dart. The add form itself is documented under the home Add Satsang page and widgets.
 
 ## Satsang Tab
 
@@ -47,15 +75,13 @@ UI shows a list of cards with satsang name, temple, address, village, taluka, an
 
 Uses LabelInfoWidget from lib/modules/home/widgets/label_info.dart for row layout.
 
-Loading state shows CircularProgressIndicator. Errors use AppFlushbar.
+Loading state shows a shimmer list. Errors use AppFlushbar.
 
 ## Wall and Members Tabs
 
 WallScreen: displays placeholder text "Wall Screen".
 
-MemberScreen: displays placeholder text "Members".
-
-Member search and listing are not implemented. See member-search.md.
+MemberScreen: loads and lists members. See member-search.md for search and filters.
 
 ## Navigation Drawer
 
@@ -89,10 +115,11 @@ Drawer extension: lib/modules/drawer/extensions/home_drawer_provider_extension.d
 ## Step-by-Step: Add a New Tab
 
 1. Create screen widget under lib/modules/home/screens/
-2. Add BottomNavigationBarItem in HomePageProvider.options
+2. Add a HomeNavDestination in HomePageProvider.destinations
 3. Add screen to PageView children in home_page.dart in the same index order
-4. If the tab needs state or API calls, add a provider and wrap the screen in ChangeNotifierProvider
-5. Test tab tap and swipe both update the correct index
+4. Keep an even split around the notch (update HomeBottomNavBar layout if the count is no longer 2 + 2)
+5. If the tab needs state or API calls, add a provider and wrap the screen in ChangeNotifierProvider
+6. Test tab tap, swipe, and FAB alignment on phone and tablet sizes
 
 ## Tests and Checks
 
@@ -101,16 +128,23 @@ Drawer extension: lib/modules/drawer/extensions/home_drawer_provider_extension.d
 | Login lands on home | Default tab is index 0 (Posts) |
 | Tab switching | Tapping each tab shows correct screen |
 | Swipe between tabs | Bottom bar index updates |
+| Notch + FAB | Circular Add button sits centered in the inward curve |
+| FAB tap | Opens Add Satsang; returning selects Satsang tab |
 | Drawer Special Thanks | Page opens, back returns to home |
 | Drawer Core Team | Page opens, back returns to home |
 | Satsang tab MOCK | List loads from mock repository |
 | Satsang tab DEV | List loads from API or shows error flushbar |
+| Small / large phones | Bar height and FAB size remain balanced |
 
 ## Common Issues
 
 **PageView and bottom bar out of sync**
 
 Ensure onPageChanged updates currentIndex and onChangeMenu uses jumpToPage not animateToPage unless both are configured.
+
+**FAB covers a tab label**
+
+Confirm HomeBottomNavBar still reserves SizedBox width for fabSize + notchMargin * 2 in the center.
 
 **Satsang list empty on DEV**
 
@@ -120,10 +154,15 @@ Check API response shape against SatsangListResponseModel. Confirm auth token is
 
 HomeDrawerProvider is only available below the drawer ChangeNotifierProvider in home_page.dart.
 
+**Content hidden behind the bar**
+
+HomePage sets extendBody: true. List screens may need bottom padding equal to the bar height when content scrolls under the notch.
+
 ## Notes for Future Developers
 
 - AppBar title is hardcoded "Home Page". Consider making it dynamic per tab.
 - Wall tab is reserved for a future posts or events feed.
-- Members tab should host member search when that feature is built.
+- BottomNavNotchClipper is available if a fully custom-painted bar is needed instead of BottomAppBar.
+- Prefer AppColors.primary and ResponsiveExtension sizing when adjusting FAB or bar metrics.
 
-See static-pages.md for drawer static content and profile-module.md for the profile tab.
+See static-pages.md for drawer static content, member-search.md for the members tab, and profile-module.md for the profile tab.

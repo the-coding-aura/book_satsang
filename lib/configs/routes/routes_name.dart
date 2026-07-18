@@ -26,4 +26,7 @@ class RoutesName {
 
   /// Route path for the add satsang screen.
   static const String addSatsang = '/add-satsang';
+
+  /// Route path for the no-internet connection screen.
+  static const String noInternet = '/no-internet';
 }

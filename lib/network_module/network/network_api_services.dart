@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 
+import '../../configs/components/app_flushbar.dart';
 import '../../configs/routes/app_navigator.dart';
 import '../../configs/routes/routes_name.dart';
 import '../../dependency_injection/locator.dart';
 import '../../services/auth/auth_service.dart';
+import '../../services/connectivity/connectivity_service.dart';
 import '../exception/app_exceptions.dart';
 import '../models/request_models/refresh_token_request_model.dart';
 import '../models/response_models/refresh_token_response_model.dart';
@@ -24,6 +26,7 @@ import 'base_api_services.dart';
 /// out and shows a non-dismissible dialog before navigating to login.
 class NetworkApiServices implements BaseApiServices {
   final AuthService _authService = getIt<AuthService>();
+  final ConnectivityService _connectivityService = getIt<ConnectivityService>();
 
   /// Single auth-data instance shared across every network call. It is created
   /// lazily on first use and kept up to date after a token refresh.
@@ -31,6 +34,12 @@ class NetworkApiServices implements BaseApiServices {
 
   /// Prevents showing the session-expired dialog more than once.
   bool _isHandlingSessionExpired = false;
+
+  /// Prevents stacking multiple no-internet pages for concurrent API calls.
+  bool _isHandlingNoInternet = false;
+
+  /// Prevents spamming the access-restricted flushbar for concurrent 403s.
+  bool _isShowingAccessRestricted = false;
 
   static const Duration _timeout = Duration(seconds: 20);
 
@@ -147,6 +156,75 @@ class NetworkApiServices implements BaseApiServices {
     );
   }
 
+  /// Shows an error flushbar for HTTP 403 responses.
+  ///
+  /// Uses [AppNavigator] so the message can appear without a widget-local
+  /// [BuildContext]. Scheduled after the current frame so the root overlay is
+  /// available. Guarded to avoid duplicate bars for concurrent failures.
+  void _showAccessRestrictedFlushbar() {
+    if (_isShowingAccessRestricted) return;
+
+    final NavigatorState? navigator = AppNavigator.state;
+    if (navigator == null) return;
+
+    final BuildContext context = navigator.overlay?.context ?? navigator.context;
+    if (!context.mounted) return;
+
+    _isShowingAccessRestricted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) {
+        _isShowingAccessRestricted = false;
+        return;
+      }
+      AppFlushbar.error(context, message: 'Access Restricted.');
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        _isShowingAccessRestricted = false;
+      });
+    });
+  }
+
+  /// Verifies internet reachability before an API call.
+  ///
+  /// When offline, navigates to [RoutesName.noInternet] and throws
+  /// [NoInternetException] so the request is not sent.
+  Future<void> _ensureInternetConnection() async {
+    final bool hasConnection =
+        await _connectivityService.hasInternetConnection();
+    if (hasConnection) return;
+
+    await _handleNoInternet();
+    throw const NoInternetException();
+  }
+
+  /// Pushes the no-internet page once via [AppNavigator].
+  ///
+  /// Skips navigation when the navigator is unavailable or the top route is
+  /// already [RoutesName.noInternet]. Does not wait for the page to be popped
+  /// so callers can throw [NoInternetException] immediately.
+  Future<void> _handleNoInternet() async {
+    if (_isHandlingNoInternet) return;
+    _isHandlingNoInternet = true;
+
+    final NavigatorState? navigator = AppNavigator.state;
+    if (navigator == null) {
+      _isHandlingNoInternet = false;
+      return;
+    }
+
+    final String? currentRoute =
+        ModalRoute.of(navigator.context)?.settings.name;
+    if (currentRoute == RoutesName.noInternet) {
+      _isHandlingNoInternet = false;
+      return;
+    }
+
+    unawaited(
+      navigator.pushNamed(RoutesName.noInternet).whenComplete(() {
+        _isHandlingNoInternet = false;
+      }),
+    );
+  }
+
   /// Sends an authenticated GET request with automatic token refresh on 401.
   ///
   /// Merges [_defaultHeaders], optional [headers], and [_authHeader].
@@ -157,6 +235,7 @@ class NetworkApiServices implements BaseApiServices {
     Map<String, String>? headers,
     Map<String, dynamic>? queryParams,
   }) async {
+    await _ensureInternetConnection();
     await _ensureAuthData();
     if (kDebugMode) debugPrint('GET $url');
     try {
@@ -182,6 +261,7 @@ class NetworkApiServices implements BaseApiServices {
       }
       return _handleResponse(response);
     } on SocketException {
+      await _handleNoInternet();
       throw const NoInternetException();
     } on TimeoutException {
       throw const FetchDataException('Network request timed out.');
@@ -197,6 +277,7 @@ class NetworkApiServices implements BaseApiServices {
     Map<String, String>? headers,
     dynamic body,
   }) async {
+    await _ensureInternetConnection();
     await _ensureAuthData();
     if (kDebugMode) {
       debugPrint('POST $url');
@@ -217,11 +298,15 @@ class NetworkApiServices implements BaseApiServices {
       }
       return _handleResponse(response);
     } on SocketException {
+      await _handleNoInternet();
       throw const NoInternetException();
     } on TimeoutException {
       throw const FetchDataException('Network request timed out.');
+    } on AppException {
+      rethrow;
     } catch (err) {
       debugPrint(err.toString());
+      throw FetchDataException(err.toString());
     }
   }
 
@@ -239,6 +324,7 @@ class NetworkApiServices implements BaseApiServices {
     Map<String, String>? additionalFields,
     void Function(int sent, int total)? onProgress,
   }) async {
+    await _ensureInternetConnection();
     await _ensureAuthData();
     try {
       final File file = File(filePath);
@@ -326,6 +412,9 @@ class NetworkApiServices implements BaseApiServices {
           return jsonDecode(responseBody);
         case 401:
           throw UnauthorisedException(responseBody);
+        case 403:
+          _showAccessRestrictedFlushbar();
+          throw const ForbiddenException();
         case 405:
           throw MethodNotAllowedException(responseBody);
         case 404:
@@ -337,6 +426,7 @@ class NetworkApiServices implements BaseApiServices {
           );
       }
     } on SocketException {
+      await _handleNoInternet();
       throw const NoInternetException();
     } on AppException {
       rethrow;
@@ -357,6 +447,9 @@ class NetworkApiServices implements BaseApiServices {
         return jsonDecode(response.body);
       case 401:
         throw UnauthorisedException(response.body);
+      case 403:
+        _showAccessRestrictedFlushbar();
+        throw const ForbiddenException();
       case 405:
         throw MethodNotAllowedException(response.body);
       case 404:

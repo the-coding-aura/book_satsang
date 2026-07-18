@@ -83,7 +83,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          SubmitProfileButton(),
+          const SubmitProfileButton(),
+          SizedBox(height: context.hp(10)),
         ],
       ),
     );

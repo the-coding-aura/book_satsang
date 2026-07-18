@@ -17,6 +17,7 @@ import 'package:get_it/get_it.dart';
 
 import '../services/access/file_upload_service.dart';
 import '../services/access/permission_service.dart';
+import '../services/connectivity/connectivity_service.dart';
 
 /// Global service locator instance for dependency injection.
 final GetIt getIt = GetIt.instance;
@@ -57,4 +58,5 @@ void setupLocator() {
   getIt.registerLazySingleton(AuthService.new);
   getIt.registerLazySingleton(FileUploadService.new);
   getIt.registerLazySingleton(PermissionService.new);
+  getIt.registerLazySingleton(ConnectivityService.new);
 }

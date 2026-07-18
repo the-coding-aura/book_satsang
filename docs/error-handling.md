@@ -49,6 +49,22 @@ NetworkApiServices shows a blocking AlertDialog when token refresh fails.
 
 Confirm navigates to login via AppNavigator and clears the session path.
 
+### HTTP 403 Access Restricted
+
+NetworkApiServices maps HTTP 403 to ForbiddenException and shows AppFlushbar.error with "Access Restricted." via AppNavigator.
+
+Applies to get, post, and uploadFile. Concurrent 403s are deduped so the message is not spammed.
+
+### No Internet page
+
+NetworkApiServices checks ConnectivityService before each live API call.
+
+When offline, it pushes RoutesName.noInternet and throws NoInternetException.
+
+NoInternetPage offers Check Again. Reconnected users pop back to the previous screen; still-offline users see an error flushbar and remain on the page.
+
+See connectivity.md for full details.
+
 ## Loading UI Patterns
 
 ### Button loading
@@ -75,9 +91,11 @@ There is no app-wide loading dialog. Each screen handles its own loading indicat
 
 File: lib/network_module/exception/app_exceptions.dart
 
-Types include NoInternetException, FetchDataException, BadRequestException, UnauthorisedException.
+Types include NoInternetException, ForbiddenException, FetchDataException, BadRequestException, UnauthorisedException.
 
 NetworkApiServices throws these based on status code and connectivity.
+
+HTTP 403 shows an Access Restricted flushbar from the network layer before throwing ForbiddenException.
 
 Providers typically catch errors and set ApiResponse.error(error.toString()).
 
@@ -103,10 +121,11 @@ Example pattern from LoginProvider checkUserExist and sendOTP methods.
 | Scenario | Expected UX |
 | --- | --- |
 | MOCK login wrong OTP | Error flushbar or error state |
-| No network on DEV | Error message shown |
+| No network on DEV | No Internet page opens; Check Again retries |
 | Satsang fetch loading | Spinner visible |
 | Submit while loading | Button disabled |
 | Session expired | Dialog, then login screen |
+| HTTP 403 | Access Restricted flushbar |
 
 Turn off network on device or emulator to test offline behavior on DEV flavor.
 
@@ -134,4 +153,4 @@ Dismiss keyboard before showing flushbar on form screens.
 - validationMessages from BaseApiResponse may contain field errors. Parse these for form-level feedback when backend sends them.
 - Profile submit when wired should follow the same ApiResponse plus flushbar pattern.
 
-See network-layer.md for ApiResponse and exception types and authentication.md for examples in login and OTP flows.
+See network-layer.md for ApiResponse and exception types, connectivity.md for offline UX, and authentication.md for examples in login and OTP flows.

@@ -1,4 +1,5 @@
 import 'package:book_satsang/configs/routes/routes_name.dart';
+import 'package:book_satsang/modules/connectivity/pages/no_internet_page.dart';
 import 'package:book_satsang/modules/drawer/pages/core_team_page.dart';
 import 'package:book_satsang/modules/drawer/pages/special_thanks_page.dart';
 import 'package:book_satsang/modules/home/pages/add_satsang_page.dart';
@@ -85,6 +86,12 @@ class Routes {
             create: (_) => AddSatsangProvider(),
             child: const AddSatsangPage(),
           ),
+        );
+
+      case RoutesName.noInternet:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const NoInternetPage(),
         );
 
       default:

@@ -14,7 +14,8 @@ The app is a member-facing mobile application with OTP login, registration, a ta
 | navigation.md | Named routes and screen flow |
 | authentication.md | Login, OTP, registration |
 | network-layer.md | API client, models, repositories |
-| home-module.md | Bottom tabs, drawer, satsang tab |
+| connectivity.md | Offline check and No Internet page |
+| home-module.md | Bottom tabs, notched bar, Add Satsang FAB, drawer, satsang tab |
 | static-pages.md | Special Thanks and Core Team pages |
 | profile-module.md | Profile fetch and edit screen |
 | member-search.md | Members tab and search dropdowns |
@@ -52,10 +53,11 @@ The project was built in stages during candidate training. Each doc file notes w
 | Navigation | Login to OTP to Home flow | navigation.md |
 | Project structure | Modules, Provider, packages | project-structure.md |
 | API layer | Models and ApiClient | network-layer.md |
+| Connectivity | Offline check and retry page | connectivity.md |
 | Send OTP integration | Login API wired | authentication.md |
 | Verify OTP integration | Login and register paths | authentication.md |
 | Registration | Form UI and API | authentication.md |
-| Home and drawer | Tabs and drawer nav | home-module.md |
+| Home and drawer | Tabs, notched FAB nav, drawer | home-module.md |
 | Member search | Search screen | member-search.md |
 | Static pages | Special Thanks, Core Team | static-pages.md |
 | Session handling | Token persistence, logout | session-storage.md |
@@ -85,5 +87,6 @@ Review the relevant doc file before picking up any of these tasks.
 | Dependency injection | lib/dependency_injection/locator.dart |
 | Environment config | lib/environments/ |
 | HTTP client | lib/network_module/network/network_api_services.dart |
+| Connectivity | lib/services/connectivity/connectivity_service.dart |
 | Auth storage | lib/services/auth/auth_service.dart |
 | Home shell | lib/modules/home/pages/home_page.dart |

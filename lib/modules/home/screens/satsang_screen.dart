@@ -53,7 +53,12 @@ class _SatsangScreenState extends State<SatsangScreen> {
               child: ListView.separated(
                 separatorBuilder: (context, index) =>
                     SizedBox(height: context.hp(1)),
-                padding: EdgeInsets.all(context.wp(2.5)),
+                padding: EdgeInsets.fromLTRB(
+                  context.wp(2.5),
+                  context.wp(2.5),
+                  context.wp(2.5),
+                  context.hp(12),
+                ),
                 itemCount: satsangList.length,
                 itemBuilder: (context, index) {
                   var cardItem = satsangList[index];

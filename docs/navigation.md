@@ -22,10 +22,12 @@ Routes are defined in two files:
 | home | /home | HomePage |
 | specialThanks | /special-thanks | SpecialThanksPage |
 | coreTeam | /core-team | CoreTeamPage |
+| addSatsang | /add-satsang | AddSatsangPage |
+| noInternet | /no-internet | NoInternetPage |
 
 MaterialApp in lib/app.dart sets initialRoute to splash and onGenerateRoute to Routes.generateRoute.
 
-Global navigator key is in lib/configs/routes/app_navigator.dart. The network layer uses this for session-expired redirects when no widget BuildContext is available.
+Global navigator key is in lib/configs/routes/app_navigator.dart. The network layer uses this for session-expired redirects and the No Internet page when no widget BuildContext is available.
 
 ## Screen Flow
 
@@ -79,6 +81,14 @@ From HomeDrawer:
 1. Close drawer for Home item
 2. pushNamed to specialThanks or coreTeam for static pages
 3. Logout clears session and pushNamedAndRemoveUntil to login
+
+### Home notched bottom navigation
+
+HomePage uses a custom HomeBottomNavBar with CircularNotchedRectangle and a center-docked AddSatsangFab.
+
+Tap Add Satsang to open /add-satsang. On return, the shell selects the Satsang tab.
+
+See home-module.md for layout, sizing, and tab mapping.
 
 ## Passing Route Arguments
 
@@ -134,4 +144,4 @@ AppNavigator.key must be attached to MaterialApp navigatorKey. Already set in ap
 - HomePage hosts its own HomeDrawerProvider inside the drawer widget. It is not route-scoped at the app level.
 - When adding deep links, extend generateRoute to parse query parameters before building the page.
 
-See authentication.md for API details behind each navigation branch and home-module.md for in-home tab switching.
+See authentication.md for API details behind each navigation branch, connectivity.md for the offline route, and home-module.md for in-home tab switching.

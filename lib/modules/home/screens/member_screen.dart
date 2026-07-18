@@ -50,7 +50,12 @@ class _MemberScreenState extends State<MemberScreen> {
               child: ListView.separated(
                 separatorBuilder: (context, index) =>
                     SizedBox(height: context.hp(1)),
-                padding: EdgeInsets.all(context.wp(2.5)),
+                padding: EdgeInsets.fromLTRB(
+                  context.wp(2.5),
+                  context.wp(2.5),
+                  context.wp(2.5),
+                  context.hp(12),
+                ),
                 itemCount: memberList.length,
                 itemBuilder: (context, index) {
                   final member = memberList[index];

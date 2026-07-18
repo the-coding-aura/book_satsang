@@ -33,6 +33,14 @@ class UnauthorisedException extends AppException {
   const UnauthorisedException([super.message = 'Unauthorised request.']);
 }
 
+/// Thrown when the caller is authenticated but not allowed to access a resource.
+///
+/// Typically maps to HTTP 403 responses. The default message is shown via
+/// flushbar from the network layer.
+class ForbiddenException extends AppException {
+  const ForbiddenException([super.message = 'Access Restricted.']);
+}
+
 /// Thrown when the HTTP method used is not supported by the endpoint.
 ///
 /// Typically maps to HTTP 405 responses.
@@ -44,7 +52,8 @@ class MethodNotAllowedException extends AppException {
 
 /// Thrown when the device has no active internet connection.
 ///
-/// Raised when a [SocketException] is caught during a network call.
+/// Raised by the pre-request connectivity check, or when a socket failure is
+/// caught during a network call.
 class NoInternetException extends AppException {
   const NoInternetException([super.message = 'No internet connection.']);
 }

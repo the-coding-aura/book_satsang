@@ -15,6 +15,10 @@ enum FlushbarType { success, warning, error }
 class AppFlushbar {
   AppFlushbar._();
 
+  static String? _lastMessage;
+  static DateTime? _lastShownAt;
+  static const Duration _dedupeWindow = Duration(seconds: 3);
+
   /// Shows a success-styled flushbar with the given [message].
   ///
   /// The bar remains visible for [duration] unless the user dismisses it early.
@@ -63,13 +67,32 @@ class AppFlushbar {
     );
   }
 
+  static bool _shouldSkipDuplicate(String message) {
+    final DateTime now = DateTime.now();
+    if (_lastMessage == message &&
+        _lastShownAt != null &&
+        now.difference(_lastShownAt!) < _dedupeWindow) {
+      return true;
+    }
+    return false;
+  }
+
+  static void _markShown(String message) {
+    _lastMessage = message;
+    _lastShownAt = DateTime.now();
+  }
+
   static void _show(
     BuildContext context, {
     required String message,
     required FlushbarType type,
     Duration duration = const Duration(seconds: 3),
   }) {
-    final overlayState = Overlay.maybeOf(context);
+    if (_shouldSkipDuplicate(message)) return;
+
+    // Prefer the root overlay so calls from AppNavigator / network layer work.
+    final OverlayState? overlayState =
+        Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.maybeOf(context);
     if (overlayState == null) return;
 
     late OverlayEntry overlayEntry;
@@ -91,6 +114,7 @@ class AppFlushbar {
     );
 
     overlayState.insert(overlayEntry);
+    _markShown(message);
   }
 }
 

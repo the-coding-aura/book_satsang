@@ -31,11 +31,15 @@ File: lib/network_module/network/network_api_services.dart
 Behavior:
 
 - Uses http package with 20 second timeout
+- Checks ConnectivityService before get, post, and uploadFile
+- When offline, pushes the No Internet page via AppNavigator and throws NoInternetException
+- On 403, shows Access Restricted flushbar via AppNavigator and throws ForbiddenException
 - Reads auth token from AuthService and adds Bearer header
 - On 401, attempts token refresh via POST /Member/GetRefreshToken
 - Refresh failure shows session expired dialog and navigates to login via AppNavigator
 - Parses JSON into BaseApiResponse
 
+See connectivity.md for the offline probe and No Internet page details.
 ### Mock implementation
 
 File: lib/network_module/network/mock_api_services.dart
@@ -172,4 +176,4 @@ NetworkApiServices uses a fixed timeout. Slow endpoints may need adjustment.
 - Keep mock responses in sync when API contracts change. Training candidates rely on MOCK flavor.
 - Profile update API is not in ApiPath yet. Add endpoint when backend is ready.
 
-See authentication.md for auth-specific API usage and error-handling.md for how errors surface in the UI.
+See authentication.md for auth-specific API usage, connectivity.md for offline handling, and error-handling.md for how errors surface in the UI.

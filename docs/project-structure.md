@@ -27,6 +27,7 @@ lib/
   services/
     auth/                    Secure token read/write
     access/                  File upload, permissions
+    connectivity/            Internet reachability probe
   utils/
     bootstrap/               Android image picker config
     constants/               OTP length, timer, mock OTP
@@ -39,6 +40,7 @@ lib/
     home/
     drawer/
     master/                  Shared master data and file upload repos
+    connectivity/            No Internet page
 ```
 
 Each feature module typically contains:
@@ -85,6 +87,7 @@ get_it registers:
 | AuthService | always | always |
 | FileUploadService | always | always |
 | PermissionService | always | always |
+| ConnectivityService | always | always |
 
 AppEnvironment.isMock determines which implementation set is used. This is set during flavor startup in lib/environments/.
 
